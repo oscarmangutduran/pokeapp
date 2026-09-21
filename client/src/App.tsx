@@ -1,122 +1,75 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState, useEffect, useCallback } from 'react';
+import { PokedexDevice } from './components/PokedexDevice';
+import { KeypadModal } from './components/KeypadModal';
+import { fetchPokemon } from './services/pokemonService';
+import type { PokemonData } from './types';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+export function App() {
+  const [currentNumber, setCurrentNumber] = useState<number>(25); // Start with Pikachu (#0025)
+  const [pokemon, setPokemon] = useState<PokemonData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isKeypadOpen, setIsKeypadOpen] = useState<boolean>(false);
+  const [autoPlayCry, setAutoPlayCry] = useState<boolean>(false);
+
+  const loadPokemonData = useCallback(async (idOrName: number | string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await fetchPokemon(idOrName);
+      setPokemon(data);
+      setCurrentNumber(data.id);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error desconocido al cargar el Pokémon';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadPokemonData(currentNumber);
+  }, [currentNumber, loadPokemonData]);
+
+  const handleNavigate = (num: number) => {
+    setCurrentNumber(num);
+  };
+
+  const handleSearch = (term: string) => {
+    loadPokemonData(term);
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="pokedex-app-wrapper">
+      {/* Dynamic ambient sci-fi background particles & grid */}
+      <div className="ambient-particles" />
+      <div className="ambient-grid-overlay" />
 
-      <div className="ticks"></div>
+      {/* Main Holo-Dex Container */}
+      <main className="pokedex-viewport">
+        <PokedexDevice
+          pokemon={pokemon}
+          loading={loading}
+          error={error}
+          currentNumber={currentNumber}
+          onNavigate={handleNavigate}
+          onOpenKeypad={() => setIsKeypadOpen(true)}
+          onSearch={handleSearch}
+          autoPlayCry={autoPlayCry}
+          setAutoPlayCry={setAutoPlayCry}
+        />
+      </main>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {/* Direct Dial Keypad Modal */}
+      <KeypadModal
+        isOpen={isKeypadOpen}
+        onClose={() => setIsKeypadOpen(false)}
+        onSelectNumber={handleNavigate}
+        currentNumber={currentNumber}
+      />
+    </div>
+  );
 }
 
-export default App
+export default App;

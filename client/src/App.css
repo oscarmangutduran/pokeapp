@@ -1,184 +1,1496 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
+/* ==========================================================
+   KALOS POKÉDEX - FUTURISTIC HOLOGRAPHIC THEME
+   ========================================================== */
 
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-}
-
-.hero {
+.pokedex-app-wrapper {
   position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
-}
-
-#center {
+  width: 100vw;
+  min-height: 100vh;
   display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at 50% 20%, #0d1e33 0%, #050b14 60%, #020408 100%);
+  padding: 24px 16px;
+  overflow-x: hidden;
 }
 
-#next-steps {
+/* Sci-Fi Background Grid */
+.ambient-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(0, 240, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 240, 255, 0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ambient-particles {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.08) 0%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.pokedex-viewport {
+  position: relative;
+  z-index: 10;
   display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 480px;
 }
 
-#docs {
-  border-right: 1px solid var(--border);
+/* ==========================================================
+   DEVICE CHASSIS (KALOS RED CASING)
+   ========================================================== */
 
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
-}
-
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
-}
-
-.ticks {
+.pokedex-chassis {
   position: relative;
   width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.55s cubic-bezier(0.2, 0.9, 0.2, 1);
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 20px rgba(220, 20, 40, 0.2));
+}
 
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
+/* Chassis Red Metallic Caps */
+.chassis-cap {
+  position: relative;
+  width: 100%;
+  background: linear-gradient(180deg, #db1d27 0%, #a40b13 45%, #7a050c 100%);
+  border: 2px solid #ff4d58;
+  box-shadow: 
+    inset 0 2px 4px rgba(255, 255, 255, 0.35),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.6),
+    0 4px 12px rgba(0, 0, 0, 0.7);
+  z-index: 20;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
 
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
+.chassis-cap-top {
+  height: 110px;
+  border-radius: 36px 36px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+}
+
+.chassis-cap-bottom {
+  height: 110px;
+  border-radius: 14px 14px 36px 36px;
+  background: linear-gradient(180deg, #7a050c 0%, #a40b13 55%, #c81620 100%);
+  border-top: 2px solid #5a0208;
+  border-bottom: 2px solid #ff4d58;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+}
+
+/* Gloss Highlights */
+.cap-metallic-gloss {
+  position: absolute;
+  top: 0;
+  left: 5%;
+  right: 5%;
+  height: 35%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 100%);
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+/* Ergonomic Corner Grip Grooves */
+.cap-grip-grooves {
+  position: absolute;
+  width: 44px;
+  height: 80px;
+  border: 3px solid rgba(50, 0, 5, 0.4);
+  pointer-events: none;
+}
+.left-groove {
+  left: -14px;
+  top: 15px;
+  border-radius: 50%;
+  box-shadow: inset 1px 1px 3px rgba(255, 255, 255, 0.2);
+}
+.right-groove {
+  right: -14px;
+  top: 15px;
+  border-radius: 50%;
+  box-shadow: inset -1px 1px 3px rgba(255, 255, 255, 0.2);
+}
+
+/* Center Pokéball Notches */
+.cap-center-notch {
+  position: absolute;
+  width: 140px;
+  height: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.chassis-cap-top .cap-center-notch {
+  bottom: 0;
+}
+.chassis-cap-bottom .cap-center-notch {
+  top: 0;
+}
+
+.pokeball-rim-half {
+  position: absolute;
+  width: 140px;
+  height: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #181920;
+  border: 3px solid #2f3440;
+}
+
+.top-rim {
+  bottom: -4px;
+  border-radius: 70px 70px 0 0;
+  border-bottom: none;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.bottom-rim {
+  top: -4px;
+  border-radius: 0 0 70px 70px;
+  border-top: none;
+  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.lens-sensor {
+  width: 22px;
+  height: 22px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #00f0ff 20%, #004466 70%, #001122 100%);
+  border: 2px solid #5de8ff;
+  box-shadow: 0 0 10px #00f0ff;
+}
+
+.mic-sensor-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 10px;
+  border-radius: 50%;
+  background: #0d1016;
+  border: 1px solid #3c424f;
+}
+
+/* Toggle Open / Close Button */
+.holo-cap-toggle-btn {
+  position: relative;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(15, 20, 28, 0.85);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  border-radius: 20px;
+  color: var(--holo-cyan);
+  font-family: var(--font-tech);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 8px rgba(0, 240, 255, 0.2);
+}
+
+.holo-cap-toggle-btn:hover {
+  background: rgba(0, 240, 255, 0.2);
+  border-color: #00f0ff;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+  transform: scale(1.03);
+}
+
+/* ==========================================================
+   CLOSED STATE & CORE ORB
+   ========================================================== */
+
+.device-closed .chassis-screen-slider {
+  height: 0;
+  min-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  border: none;
+  padding: 0;
+  overflow: hidden;
+}
+
+.device-closed .holo-screen-surface {
+  display: none;
+}
+
+.device-closed .chassis-cap-top {
+  height: 175px;
+  border-bottom: 2px solid #1a1a24;
+}
+
+.device-closed .chassis-cap-bottom {
+  height: 175px;
+  border-top: 2px solid #1a1a24;
+}
+
+.closed-status-preview {
+  position: absolute;
+  bottom: 75px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+.closed-id {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--holo-cyan);
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px var(--holo-cyan-glow);
+}
+.closed-name {
+  font-family: var(--font-tech);
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.closed-pokeball-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 40;
+}
+
+.core-holo-band {
+  position: absolute;
+  width: 380px;
+  height: 28px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 240, 255, 0.25) 20%, rgba(200, 250, 255, 0.7) 50%, rgba(0, 240, 255, 0.25) 80%, transparent 100%);
+  border-top: 1px solid rgba(0, 240, 255, 0.5);
+  border-bottom: 1px solid rgba(0, 240, 255, 0.5);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+  pointer-events: none;
+}
+
+.glowing-blue-orb {
+  position: relative;
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 45% 45%, #ffffff 0%, #75ecff 25%, #009ecc 60%, #002e4d 100%);
+  border: 4px solid #ffffff;
+  box-shadow: 
+    0 0 25px rgba(0, 240, 255, 0.9),
+    0 0 50px rgba(0, 240, 255, 0.5),
+    inset 0 0 15px rgba(255, 255, 255, 0.8);
+  animation: orbPulse 2.4s infinite alternate ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orb-inner-ring {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.7);
+  animation: rotateRing 8s linear infinite;
+}
+
+@keyframes rotateRing {
+  to { transform: rotate(360deg); }
+}
+
+.orb-center-dot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 10px #ffffff;
+}
+
+.touch-to-open {
+  position: absolute;
+  bottom: -40px;
+  white-space: nowrap;
+  font-family: var(--font-tech);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--holo-cyan);
+  text-shadow: 0 0 8px var(--holo-cyan);
+  animation: blinkText 1.6s infinite ease-in-out;
+}
+
+@keyframes orbPulse {
+  0% { transform: scale(0.96); box-shadow: 0 0 20px rgba(0, 240, 255, 0.7); }
+  100% { transform: scale(1.04); box-shadow: 0 0 35px rgba(0, 240, 255, 1), 0 0 60px rgba(0, 240, 255, 0.6); }
+}
+
+.touch-to-open {
+  margin-top: 12px;
+  font-family: var(--font-tech);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--holo-cyan);
+  text-shadow: 0 0 8px var(--holo-cyan);
+  animation: blinkText 1.6s infinite ease-in-out;
+}
+
+@keyframes blinkText {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ==========================================================
+   HOLOGRAPHIC CYAN DISPLAY (OPEN STATE)
+   ========================================================== */
+
+.chassis-screen-slider {
+  position: relative;
+  width: 94%;
+  margin: 0 auto;
+  min-height: 640px;
+  transition: all 0.55s cubic-bezier(0.2, 0.9, 0.2, 1);
+  overflow: visible;
+  z-index: 10;
+}
+
+.holo-screen-surface {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(170deg, rgba(8, 28, 48, 0.82) 0%, rgba(4, 16, 28, 0.88) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-left: 2px solid var(--holo-cyan);
+  border-right: 2px solid var(--holo-cyan);
+  box-shadow: 
+    0 0 25px rgba(0, 240, 255, 0.25),
+    inset 0 0 20px rgba(0, 240, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  padding: 14px 14px 18px 14px;
+  color: #c9efff;
+}
+
+/* Scanlines and Vignette overlay */
+.holo-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 240, 255, 0.035) 3px,
+    rgba(0, 240, 255, 0.035) 4px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+.holo-vignette {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 40px rgba(0, 15, 30, 0.85);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Topbar */
+.holo-topbar {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+}
+
+.holo-brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.holo-badge-icon {
+  color: var(--holo-cyan);
+  display: flex;
+  align-items: center;
+}
+
+.pulse-icon {
+  animation: pulseRotate 3s infinite linear;
+}
+
+@keyframes pulseRotate {
+  0% { transform: scale(1); filter: drop-shadow(0 0 2px var(--holo-cyan)); }
+  50% { transform: scale(1.15); filter: drop-shadow(0 0 8px var(--holo-cyan)); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 2px var(--holo-cyan)); }
+}
+
+.holo-brand-text {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--holo-cyan);
+  text-shadow: 0 0 6px var(--holo-cyan-glow);
+  font-weight: 700;
+}
+
+.holo-top-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.holo-mini-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 6px;
+  color: var(--holo-cyan);
+  font-family: var(--font-tech);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.holo-mini-btn:hover {
+  background: rgba(0, 240, 255, 0.2);
+  border-color: var(--holo-cyan);
+  box-shadow: 0 0 8px var(--holo-cyan-glow);
+}
+
+.holo-mini-btn.active {
+  background: rgba(255, 77, 88, 0.25);
+  border-color: #ff4d58;
+  color: #ff4d58;
+}
+
+/* Search Bar */
+.holo-search-strip {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  margin-bottom: 10px;
+  background: rgba(2, 12, 22, 0.7);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 8px;
+  padding: 2px 6px;
+}
+
+.holo-search-strip:focus-within {
+  border-color: var(--holo-cyan);
+  box-shadow: 0 0 12px var(--holo-cyan-glow);
+}
+
+.holo-search-icon {
+  color: var(--holo-cyan);
+  margin-left: 4px;
+}
+
+.holo-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-family: var(--font-tech);
+  font-size: 14px;
+  padding: 6px 8px;
+}
+
+.holo-search-input::placeholder {
+  color: rgba(150, 210, 240, 0.4);
+}
+
+.holo-search-btn {
+  padding: 4px 10px;
+  background: rgba(0, 240, 255, 0.2);
+  border: 1px solid var(--holo-cyan);
+  border-radius: 4px;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.holo-search-btn:hover {
+  background: var(--holo-cyan);
+  color: #000;
+  box-shadow: 0 0 10px var(--holo-cyan);
+}
+
+/* Content Area */
+.holo-content-body {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Loading & Error */
+.holo-loading-state,
+.holo-error-state {
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  font-family: var(--font-tech);
+}
+
+.holo-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(0, 240, 255, 0.2);
+  border-top-color: var(--holo-cyan);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  box-shadow: 0 0 15px var(--holo-cyan-glow);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.holo-loading-state p {
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  color: var(--holo-cyan);
+}
+
+.holo-loading-state span {
+  font-size: 13px;
+  color: rgba(200, 235, 255, 0.6);
+}
+
+.holo-error-state .error-title {
+  font-family: var(--font-display);
+  color: #ff4d58;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+.holo-error-state .error-msg {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+.holo-retry-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(255, 77, 88, 0.2);
+  border: 1px solid #ff4d58;
+  border-radius: 6px;
+  color: #fff;
+  font-family: var(--font-tech);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* Pokémon Header Identification */
+.holo-poke-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(0, 20, 38, 0.5);
+  border-left: 3px solid var(--holo-cyan);
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.holo-id-badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.holo-id-badge:hover .num-digits {
+  text-decoration: underline;
+}
+
+.num-hash {
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: var(--holo-cyan);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.num-digits {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px var(--holo-cyan-glow);
+}
+
+.holo-name-container {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.holo-poke-name {
+  font-family: var(--font-tech);
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 1px;
+  margin: 0;
+  text-transform: capitalize;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+.holo-genus {
+  font-family: var(--font-tech);
+  font-size: 13px;
+  color: rgba(0, 240, 255, 0.8);
+  font-style: italic;
+}
+
+.holo-type-pills {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.holo-type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid;
+  background: rgba(4, 15, 26, 0.7);
+  font-family: var(--font-tech);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.8px;
+  color: #fff;
+}
+
+.type-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+/* Stage Area (Artwork & Sprites) */
+.holo-stage-area {
+  position: relative;
+  width: 100%;
+  height: 190px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 4px 0;
+}
+
+.holo-pedestal-glow {
+  position: absolute;
+  bottom: 10px;
+  width: 220px;
+  height: 60px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.holo-image-wrapper {
+  position: relative;
+  z-index: 5;
+  width: 160px;
+  height: 160px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.holo-pokemon-sprite {
+  max-width: 155px;
+  max-height: 155px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(0, 240, 255, 0.35));
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.holo-pokemon-sprite:hover {
+  transform: scale(1.08) translateY(-4px);
+  filter: drop-shadow(0 0 18px rgba(0, 240, 255, 0.6));
+}
+
+.holo-pokemon-sprite.sound-reacting {
+  animation: soundBounce 0.35s infinite alternate ease-in-out;
+  filter: drop-shadow(0 0 24px var(--holo-cyan));
+}
+
+@keyframes soundBounce {
+  0% { transform: scale(1) translateY(0); }
+  100% { transform: scale(1.1) translateY(-6px); }
+}
+
+.holo-stage-controls {
+  position: absolute;
+  right: 4px;
+  bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 10;
+}
+
+.holo-pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 12px;
+  color: var(--holo-cyan);
+  font-family: var(--font-tech);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.holo-pill-btn:hover {
+  background: rgba(0, 240, 255, 0.25);
+  border-color: var(--holo-cyan);
+}
+
+.holo-pill-btn.active {
+  background: rgba(255, 204, 0, 0.2);
+  border-color: #ffcc00;
+  color: #ffcc00;
+  box-shadow: 0 0 10px rgba(255, 204, 0, 0.4);
+}
+
+/* ==========================================================
+   FEATURE PRINCIPAL: SOUND STATION (CRY PLAYER)
+   ========================================================== */
+
+.holo-sound-station {
+  position: relative;
+  background: linear-gradient(135deg, rgba(3, 20, 36, 0.85) 0%, rgba(1, 12, 22, 0.95) 100%);
+  border: 1px solid rgba(0, 240, 255, 0.45);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.5),
+    0 0 15px rgba(0, 240, 255, 0.15),
+    inset 0 0 12px rgba(0, 240, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sound-station-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.15);
+  padding-bottom: 6px;
+}
+
+.station-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--holo-cyan);
+  text-shadow: 0 0 6px var(--holo-cyan-glow);
+  font-weight: 700;
+}
+
+.sound-icon-glow {
+  color: var(--holo-cyan);
+  filter: drop-shadow(0 0 4px var(--holo-cyan));
+}
+
+.cry-version-toggle {
+  display: flex;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+  padding: 2px;
+  border: 1px solid rgba(0, 240, 255, 0.2);
+}
+
+.version-btn {
+  padding: 2px 7px;
+  font-family: var(--font-tech);
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(200, 235, 255, 0.6);
+  border-radius: 4px;
+}
+
+.version-btn.selected {
+  background: var(--holo-cyan);
+  color: #000;
+  box-shadow: 0 0 6px var(--holo-cyan);
+}
+
+/* Sound Interactive Strip (Big Play + Visualizer) */
+.sound-interactive-strip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.holo-big-play-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 74px;
+  height: 64px;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(0, 140, 200, 0.3) 100%);
+  border: 2px solid var(--holo-cyan);
+  border-radius: 8px;
+  color: #fff;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.3);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.holo-big-play-btn .play-indent {
+  margin-left: 2px;
+}
+
+.holo-big-play-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.35) 0%, rgba(0, 160, 230, 0.45) 100%);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+  transform: scale(1.04);
+}
+
+.holo-big-play-btn.playing {
+  background: linear-gradient(135deg, rgba(255, 50, 80, 0.35) 0%, rgba(200, 20, 50, 0.5) 100%);
+  border-color: #ff3355;
+  box-shadow: 0 0 22px rgba(255, 50, 80, 0.7);
+  animation: playPulse 0.8s infinite alternate;
+}
+
+@keyframes playPulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.05); }
+}
+
+.holo-big-play-btn .btn-label {
+  font-family: var(--font-display);
+  font-size: 8px;
+  letter-spacing: 0.8px;
+  margin-top: 3px;
+  font-weight: 700;
+}
+
+/* Visualizer Wrapper */
+.visualizer-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.holo-visualizer-container {
+  position: relative;
+  width: 100%;
+  height: 48px;
+  background: rgba(0, 8, 16, 0.8);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.holo-visualizer-glow-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(0, 240, 255, 0.08) 0%, transparent 80%);
+  pointer-events: none;
+}
+
+.holo-visualizer-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.visualizer-caption {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-tech);
+  font-size: 10px;
+  color: rgba(180, 225, 255, 0.6);
+  letter-spacing: 0.5px;
+}
+
+.cry-indicator {
+  color: var(--holo-cyan);
+  font-weight: 700;
+}
+
+/* Sub-controls (Auto-play checkbox + volume) */
+.sound-sub-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-tech);
+  font-size: 12px;
+  padding-top: 4px;
+  border-top: 1px dashed rgba(0, 240, 255, 0.15);
+}
+
+.holo-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: rgba(220, 245, 255, 0.85);
+}
+
+.holo-checkbox-label input[type="checkbox"] {
+  accent-color: var(--holo-cyan);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+.holo-volume-slider-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--holo-cyan);
+}
+
+.holo-range {
+  width: 65px;
+  accent-color: var(--holo-cyan);
+  height: 4px;
+  cursor: pointer;
+}
+
+.vol-percent {
+  font-family: var(--font-tech);
+  font-size: 11px;
+  min-width: 26px;
+  text-align: right;
+  color: rgba(200, 240, 255, 0.8);
+}
+
+/* ==========================================================
+   TABS: FIELD DATA / BASE STATS
+   ========================================================== */
+
+.holo-tabs-nav {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+  padding-bottom: 2px;
+}
+
+.holo-tab {
+  flex: 1;
+  padding: 6px 4px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 1px;
+  font-weight: 700;
+  color: rgba(200, 235, 255, 0.5);
+  background: rgba(0, 240, 255, 0.04);
+  border-radius: 4px 4px 0 0;
+}
+
+.holo-tab.active {
+  color: var(--holo-cyan);
+  background: rgba(0, 240, 255, 0.15);
+  border-bottom: 2px solid var(--holo-cyan);
+  text-shadow: 0 0 6px var(--holo-cyan-glow);
+}
+
+.holo-tab-panel {
+  padding: 4px 0;
+}
+
+/* Field Data Metrics */
+.metrics-row {
+  display: flex;
+  gap: 8px;
+}
+
+.metric-box {
+  flex: 1;
+  background: rgba(1, 14, 26, 0.6);
+  border: 1px solid rgba(0, 240, 255, 0.18);
+  border-radius: 6px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metric-label {
+  font-family: var(--font-tech);
+  font-size: 10px;
+  color: rgba(160, 220, 255, 0.6);
+  letter-spacing: 0.5px;
+}
+
+.metric-val {
+  font-family: var(--font-tech);
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.holo-desc-box {
+  margin-top: 8px;
+  background: rgba(1, 14, 26, 0.6);
+  border: 1px solid rgba(0, 240, 255, 0.18);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.desc-title {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--holo-cyan);
+  margin-bottom: 4px;
+}
+
+.desc-text {
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.4;
+  color: #e4f5ff;
+}
+
+/* Base Stats Panel */
+.stats-bars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-tech);
+  font-size: 12px;
+}
+
+.stat-name {
+  width: 60px;
+  color: rgba(180, 225, 255, 0.7);
+}
+
+.stat-number {
+  width: 28px;
+  font-weight: 700;
+  color: #fff;
+  text-align: right;
+}
+
+.stat-bar-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(0, 10, 20, 0.7);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+/* ==========================================================
+   BOTTOM HOLOGRAPHIC NAVIGATION BAR
+   ========================================================== */
+
+.holo-footer-nav {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 240, 255, 0.2);
+}
+
+.holo-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  border-radius: 8px;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.holo-nav-btn:hover {
+  background: rgba(0, 240, 255, 0.25);
+  border-color: var(--holo-cyan);
+  box-shadow: 0 0 10px var(--holo-cyan-glow);
+}
+
+.holo-nav-center-dial {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.25) 0%, rgba(0, 150, 220, 0.3) 100%);
+  border: 1px solid var(--holo-cyan);
+  border-radius: 8px;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+}
+
+.holo-nav-center-dial:hover {
+  background: var(--holo-cyan);
+  color: #000;
+  box-shadow: 0 0 18px var(--holo-cyan);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================
+   KEYPAD MODAL (NUMERIC DIAL SCREEN)
+   ========================================================== */
+
+.holo-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 12, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+.holo-modal-card {
+  width: 100%;
+  max-width: 380px;
+  background: linear-gradient(160deg, #071927 0%, #030d17 100%);
+  border: 2px solid var(--holo-cyan);
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.4), inset 0 0 20px rgba(0, 240, 255, 0.15);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.holo-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+  padding-bottom: 8px;
+}
+
+.holo-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: var(--holo-cyan);
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.holo-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--holo-cyan);
+  box-shadow: 0 0 6px var(--holo-cyan);
+}
+
+.holo-icon-btn.close-btn {
+  color: rgba(200, 235, 255, 0.7);
+  padding: 4px;
+}
+.holo-icon-btn.close-btn:hover {
+  color: #ff4d58;
+}
+
+/* Keypad Screen */
+.holo-keypad-screen {
+  background: rgba(0, 10, 20, 0.8);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.holo-screen-label {
+  font-family: var(--font-tech);
+  font-size: 11px;
+  color: rgba(160, 220, 255, 0.6);
+  letter-spacing: 1px;
+}
+
+.holo-screen-number {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 4px;
+  text-shadow: 0 0 15px var(--holo-cyan-glow);
+  margin: 4px 0;
+}
+
+.holo-screen-range {
+  font-family: var(--font-tech);
+  font-size: 11px;
+  color: rgba(0, 240, 255, 0.7);
+}
+
+/* Keypad Grid */
+.holo-keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.holo-key-btn {
+  padding: 12px 0;
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 8px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.holo-key-btn:hover {
+  background: rgba(0, 240, 255, 0.25);
+  border-color: var(--holo-cyan);
+  box-shadow: 0 0 10px var(--holo-cyan-glow);
+  transform: translateY(-1px);
+}
+
+.holo-key-btn:active {
+  transform: translateY(1px);
+}
+
+.holo-key-btn.func-clear {
+  color: #ffcc00;
+  border-color: rgba(255, 204, 0, 0.4);
+}
+.holo-key-btn.func-clear:hover {
+  background: rgba(255, 204, 0, 0.2);
+}
+
+.holo-key-btn.func-del {
+  color: #ff5566;
+  border-color: rgba(255, 85, 102, 0.4);
+}
+.holo-key-btn.func-del:hover {
+  background: rgba(255, 85, 102, 0.2);
+}
+
+/* Bottom Action Buttons */
+.holo-keypad-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.holo-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-family: var(--font-tech);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.random-btn {
+  background: rgba(255, 204, 0, 0.15);
+  border: 1px solid #ffcc00;
+  color: #ffcc00;
+}
+.random-btn:hover {
+  background: rgba(255, 204, 0, 0.3);
+  box-shadow: 0 0 10px rgba(255, 204, 0, 0.4);
+}
+
+.confirm-btn {
+  flex: 1;
+  background: var(--holo-cyan);
+  border: 1px solid #fff;
+  color: #000;
+  font-weight: 800;
+  box-shadow: 0 0 14px var(--holo-cyan);
+}
+.confirm-btn:hover:not(:disabled) {
+  background: #66ffff;
+  box-shadow: 0 0 20px var(--holo-cyan);
+  transform: translateY(-1px);
+}
+.confirm-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Quick Gen Chips */
+.holo-gens-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.holo-gens-title {
+  font-family: var(--font-display);
+  font-size: 9px;
+  color: rgba(160, 220, 255, 0.6);
+  letter-spacing: 1px;
+}
+
+.holo-gens-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.holo-gen-chip {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 6px;
+  background: rgba(0, 240, 255, 0.05);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: 6px;
+  text-align: left;
+}
+
+.holo-gen-chip strong {
+  font-family: var(--font-tech);
+  font-size: 11px;
+  color: var(--holo-cyan);
+}
+
+.holo-gen-chip span {
+  font-family: var(--font-tech);
+  font-size: 10px;
+  color: rgba(220, 240, 255, 0.65);
+}
+
+.holo-gen-chip:hover {
+  background: rgba(0, 240, 255, 0.18);
+  border-color: var(--holo-cyan);
+}
+
+/* ==========================================================
+   RESPONSIVENESS
+   ========================================================== */
+
+@media (max-width: 480px) {
+  .pokedex-app-wrapper {
+    padding: 10px 6px;
   }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
+  .pokedex-chassis {
+    max-width: 100%;
+  }
+  .chassis-cap-top,
+  .chassis-cap-bottom {
+    height: 95px;
+  }
+  .holo-poke-name {
+    font-size: 24px;
+  }
+  .holo-stage-area {
+    height: 170px;
+  }
+  .holo-image-wrapper {
+    width: 140px;
+    height: 140px;
+  }
+  .holo-big-play-btn {
+    width: 66px;
+    height: 58px;
+  }
+  .holo-screen-surface {
+    padding: 10px 10px 14px 10px;
   }
 }

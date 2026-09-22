@@ -1,5 +1,5 @@
 import type { PokemonData, VersionFlavorText, RegionalDexEntry, EditionPokemonEntry } from '../types';
-import { POKEDEX_EDITIONS, EDITION_MAP, VERSION_NAMES } from './editionsData';
+import { EDITION_MAP, VERSION_NAMES } from './editionsData';
 
 const BASE_URL = 'https://pokeapi.co/api/v2';
 const cache = new Map<number | string, PokemonData>();

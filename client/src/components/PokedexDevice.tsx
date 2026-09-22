@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Volume2,
   VolumeX,
@@ -11,11 +11,13 @@ import {
   Search,
   Maximize2,
   Minimize2,
-  Radio,
-  Sliders,
   RotateCcw,
+  Sliders,
+  ChevronDown,
+  BookOpen,
+  ListFilter,
 } from 'lucide-react';
-import type { PokemonData, CryVersion } from '../types';
+import type { PokemonData, CryVersion, PokedexEdition, EditionPokemonEntry } from '../types';
 import { audioService } from '../services/audioService';
 import { HoloVisualizer } from './HoloVisualizer';
 import { TYPE_COLORS, TYPE_TRANSLATIONS } from '../services/pokemonService';
@@ -30,6 +32,10 @@ interface PokedexDeviceProps {
   onSearch: (term: string) => void;
   autoPlayCry: boolean;
   setAutoPlayCry: (val: boolean) => void;
+  currentEdition: PokedexEdition;
+  roster: EditionPokemonEntry[];
+  onOpenEditionSelector: () => void;
+  onOpenRosterDrawer: () => void;
 }
 
 export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
@@ -42,6 +48,10 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
   onSearch,
   autoPlayCry,
   setAutoPlayCry,
+  currentEdition,
+  roster,
+  onOpenEditionSelector,
+  onOpenRosterDrawer,
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
   const [isShiny, setIsShiny] = useState<boolean>(false);
@@ -52,6 +62,20 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
   const [volume, setVolume] = useState<number>(0.8);
   const [activeTab, setActiveTab] = useState<'info' | 'stats'>('info');
   const [searchInput, setSearchInput] = useState<string>('');
+  const [selectedVersion, setSelectedVersion] = useState<string>('');
+
+  // When pokemon changes, reset selected version to the first available or matching edition
+  useEffect(() => {
+    if (pokemon && pokemon.flavorTextsByVersion.length > 0) {
+      // Find one matching the current edition or default to first
+      const match = pokemon.flavorTextsByVersion.find(
+        (v) => v.version.includes(currentEdition.id) || currentEdition.games.toLowerCase().includes(v.versionName.toLowerCase())
+      );
+      setSelectedVersion(match ? match.version : pokemon.flavorTextsByVersion[0].version);
+    } else {
+      setSelectedVersion('');
+    }
+  }, [pokemon?.id, currentEdition.id]);
 
   // Handle auto-playing cry when Pokémon changes
   useEffect(() => {
@@ -78,9 +102,10 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
       return;
     }
 
-    const cryUrl = cryVersion === 'legacy' && pokemon.cries.legacy
-      ? pokemon.cries.legacy
-      : pokemon.cries.latest;
+    const cryUrl =
+      cryVersion === 'legacy' && pokemon.cries.legacy
+        ? pokemon.cries.legacy
+        : pokemon.cries.latest;
 
     if (!cryUrl) return;
 
@@ -114,23 +139,85 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
     setSearchInput('');
   };
 
-  const handlePrev = () => {
+  // Find index in current edition roster
+  const currentIndexInRoster = roster.findIndex((p) => p.nationalNumber === currentNumber);
+
+  const handlePrev = useCallback(() => {
     audioService.playBeep(780, 0.05);
-    if (currentNumber > 1) {
-      onNavigate(currentNumber - 1);
+    if (roster.length > 0 && currentIndexInRoster !== -1) {
+      const prevIndex = currentIndexInRoster > 0 ? currentIndexInRoster - 1 : roster.length - 1;
+      onNavigate(roster[prevIndex].nationalNumber);
     } else {
-      onNavigate(1025);
+      if (currentNumber > 1) {
+        onNavigate(currentNumber - 1);
+      } else {
+        onNavigate(1025);
+      }
     }
+  }, [roster, currentIndexInRoster, currentNumber, onNavigate]);
+
+  const handleNext = useCallback(() => {
+    audioService.playBeep(880, 0.05);
+    if (roster.length > 0 && currentIndexInRoster !== -1) {
+      const nextIndex = currentIndexInRoster < roster.length - 1 ? currentIndexInRoster + 1 : 0;
+      onNavigate(roster[nextIndex].nationalNumber);
+    } else {
+      if (currentNumber < 1025) {
+        onNavigate(currentNumber + 1);
+      } else {
+        onNavigate(1);
+      }
+    }
+  }, [roster, currentIndexInRoster, currentNumber, onNavigate]);
+
+  // Keyboard navigation (ArrowLeft = previous, ArrowRight = next)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) {
+        return;
+      }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        handlePrev();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        handleNext();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handlePrev, handleNext]);
+
+  // Determine current regional entry if in active edition
+  const currentRosterItem = roster.find((p) => p.nationalNumber === currentNumber);
+
+  // Structured prev and next items
+  let prevItem = {
+    id: currentNumber > 1 ? currentNumber - 1 : 1025,
+    formattedId: `#${String(currentNumber > 1 ? currentNumber - 1 : 1025).padStart(4, '0')}`,
+    name: 'Anterior',
+  };
+  let nextItem = {
+    id: currentNumber < 1025 ? currentNumber + 1 : 1,
+    formattedId: `#${String(currentNumber < 1025 ? currentNumber + 1 : 1).padStart(4, '0')}`,
+    name: 'Siguiente',
   };
 
-  const handleNext = () => {
-    audioService.playBeep(880, 0.05);
-    if (currentNumber < 1025) {
-      onNavigate(currentNumber + 1);
-    } else {
-      onNavigate(1);
-    }
-  };
+  if (roster.length > 0 && currentIndexInRoster !== -1) {
+    const p = roster[currentIndexInRoster > 0 ? currentIndexInRoster - 1 : roster.length - 1];
+    const n = roster[currentIndexInRoster < roster.length - 1 ? currentIndexInRoster + 1 : 0];
+    prevItem = {
+      id: p.nationalNumber,
+      formattedId: p.formattedRegionalId,
+      name: p.name,
+    };
+    nextItem = {
+      id: n.nationalNumber,
+      formattedId: n.formattedRegionalId,
+      name: n.name,
+    };
+  }
 
   const primaryType = pokemon?.types[0] || 'normal';
   const typeStyle = TYPE_COLORS[primaryType] || TYPE_COLORS.normal;
@@ -146,8 +233,17 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
       : pokemon.sprites.artwork
     : '';
 
+  // Active flavor text by chosen game version
+  const activeFlavorObj = pokemon?.flavorTextsByVersion.find((v) => v.version === selectedVersion);
+  const displayedFlavorText = activeFlavorObj ? activeFlavorObj.flavorText : pokemon?.flavorText;
+
   return (
-    <div className={`pokedex-chassis ${isOpen ? 'device-open' : 'device-closed'}`}>
+    <div
+      className={`pokedex-chassis ${isOpen ? 'device-open' : 'device-closed'}`}
+      style={{
+        '--edition-accent': currentEdition.accentColor,
+      } as React.CSSProperties}
+    >
       {/* Top Metallic Crimson Cap */}
       <div className="chassis-cap chassis-cap-top">
         <div className="cap-metallic-gloss" />
@@ -163,7 +259,9 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
         {/* Closed mode quick info */}
         {!isOpen && (
           <div className="closed-status-preview" onClick={toggleOpen}>
-            <span className="closed-id">{pokemon?.formattedId || `#${String(currentNumber).padStart(4, '0')}`}</span>
+            <span className="closed-id">
+              {currentRosterItem?.formattedRegionalId || pokemon?.formattedId || `#${String(currentNumber).padStart(4, '0')}`}
+            </span>
             <span className="closed-name">{pokemon?.name || 'Iniciando...'}</span>
           </div>
         )}
@@ -187,14 +285,39 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
 
           {/* Top Holographic Navigation & Status Bar */}
           <header className="holo-topbar">
-            <div className="holo-brand">
-              <span className="holo-badge-icon">
-                <Radio size={14} className="pulse-icon" />
-              </span>
-              <span className="holo-brand-text">KALOS HOLO-DEX 2.0</span>
-            </div>
+            {/* Edition Switcher Button */}
+            <button
+              className="holo-edition-selector-trigger"
+              onClick={() => {
+                audioService.playBeep(900, 0.05);
+                onOpenEditionSelector();
+              }}
+              title="Haz clic para cambiar la edición de la Pokédex"
+            >
+              <span className="edition-status-dot" style={{ backgroundColor: currentEdition.accentColor }} />
+              <div className="edition-text-group">
+                <span className="edition-sublabel">EDICIÓN REGIONAL</span>
+                <span className="holo-brand-text">POKÉDEX {currentEdition.name.toUpperCase()}</span>
+              </div>
+              <span className="edition-gen-pill">{currentEdition.generation}</span>
+              <ChevronDown size={14} className="edition-caret" />
+            </button>
 
+            {/* Quick Top Actions */}
             <div className="holo-top-controls">
+              {/* Roster Drawer Button */}
+              <button
+                className="holo-mini-btn roster-btn"
+                onClick={() => {
+                  audioService.playBeep(920, 0.04);
+                  onOpenRosterDrawer();
+                }}
+                title={`Ver catálogo de ${currentEdition.name} (${roster.length} Pokémon)`}
+              >
+                <ListFilter size={15} />
+                <span className="mini-label">RÓSTER ({roster.length})</span>
+              </button>
+
               <button
                 className={`holo-mini-btn ${isMuted ? 'active' : ''}`}
                 onClick={handleToggleMute}
@@ -219,7 +342,7 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
             <Search size={14} className="holo-search-icon" />
             <input
               type="text"
-              placeholder="Buscar por nombre o número (#)..."
+              placeholder={`Buscar en Pokédex (${currentEdition.name})...`}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="holo-search-input"
@@ -235,7 +358,7 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
               <div className="holo-loading-state">
                 <div className="holo-spinner" />
                 <p>TRANSMITIENDO DATOS HOLOGRÁFICOS...</p>
-                <span>Sincronizando con la red de Kalos</span>
+                <span>Sincronizando con la red de {currentEdition.name}</span>
               </div>
             ) : error ? (
               <div className="holo-error-state">
@@ -250,16 +373,37 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
               </div>
             ) : pokemon ? (
               <>
-                {/* Pokémon Identification Header */}
+                {/* Pokémon Identification Header with Regional + National IDs */}
                 <div className="holo-poke-header">
-                  <div className="holo-id-badge" onClick={onOpenKeypad} title="Cambiar número">
-                    <span className="num-hash">NO.</span>
-                    <span className="num-digits">{pokemon.formattedId}</span>
+                  <div className="holo-id-badges-wrapper">
+                    {/* Active Regional ID */}
+                    <div
+                      className="holo-id-badge regional-badge"
+                      onClick={onOpenRosterDrawer}
+                      title={`Número en la Pokédex de ${currentEdition.name}`}
+                    >
+                      <span className="num-hash">{currentEdition.name.toUpperCase()}</span>
+                      <span className="num-digits">
+                        {currentRosterItem ? currentRosterItem.formattedRegionalId : 'REGIONAL'}
+                      </span>
+                    </div>
+
+                    {/* National ID */}
+                    <div
+                      className="holo-id-badge national-badge"
+                      onClick={onOpenKeypad}
+                      title="Número en la Pokédex Nacional (Clic para marcar dial)"
+                    >
+                      <span className="num-hash">NAT</span>
+                      <span className="num-digits">{pokemon.formattedId}</span>
+                    </div>
                   </div>
+
                   <div className="holo-name-container">
                     <h1 className="holo-poke-name">{pokemon.name}</h1>
                     {pokemon.genus && <span className="holo-genus">{pokemon.genus}</span>}
                   </div>
+
                   <div className="holo-type-pills">
                     {pokemon.types.map((type) => {
                       const tInfo = TYPE_COLORS[type] || TYPE_COLORS.normal;
@@ -415,7 +559,7 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
                       setActiveTab('info');
                     }}
                   >
-                    DATOS DE CAMPO
+                    DATOS DE CAMPO Y EDICIONES
                   </button>
                   <button
                     className={`holo-tab ${activeTab === 'stats' ? 'active' : ''}`}
@@ -447,12 +591,43 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
                       </div>
                     </div>
 
-                    {pokemon.flavorText && (
-                      <div className="holo-desc-box">
-                        <div className="desc-title">REGISTRO DE LA POKÉDEX:</div>
-                        <p className="desc-text">"{pokemon.flavorText}"</p>
+                    {/* Pokédex Entry by Edition / Game */}
+                    <div className="holo-desc-box">
+                      <div className="desc-header-row">
+                        <div className="desc-title">
+                          <BookOpen size={14} />
+                          <span>REGISTRO DE LA POKÉDEX POR EDICIÓN:</span>
+                        </div>
+                        {activeFlavorObj && (
+                          <span className="flavor-lang-tag">
+                            {activeFlavorObj.language.toUpperCase()}
+                          </span>
+                        )}
                       </div>
-                    )}
+
+                      {/* Game edition tags selector */}
+                      {pokemon.flavorTextsByVersion.length > 0 && (
+                        <div className="game-versions-pill-strip">
+                          {pokemon.flavorTextsByVersion.map((v) => (
+                            <button
+                              key={v.version}
+                              className={`version-pill ${selectedVersion === v.version ? 'active' : ''}`}
+                              onClick={() => {
+                                audioService.playBeep(950, 0.03);
+                                setSelectedVersion(v.version);
+                              }}
+                              title={`Ver descripción de Pokémon ${v.versionName}`}
+                            >
+                              {v.versionName}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      <p className="desc-text">
+                        "{displayedFlavorText || 'No hay registro descriptivo disponible para esta especie.'}"
+                      </p>
+                    </div>
                   </div>
                 ) : (
                   <div className="holo-tab-panel stats-panel">
@@ -492,28 +667,37 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
             <button
               className="holo-nav-btn prev-btn"
               onClick={handlePrev}
-              title="Pokémon anterior"
+              title={`Pokémon anterior: ${prevItem.formattedId} ${prevItem.name} (← Flecha Izquierda)`}
             >
-              <ChevronLeft size={20} />
-              <span>#{String(currentNumber > 1 ? currentNumber - 1 : 1025).padStart(4, '0')}</span>
+              <ChevronLeft size={18} className="nav-chevron" />
+              <div className="nav-item-info prev-info">
+                <span className="nav-item-id">{prevItem.formattedId}</span>
+                <span className="nav-item-name">{prevItem.name}</span>
+              </div>
             </button>
 
             <button
               className="holo-nav-center-dial"
               onClick={onOpenKeypad}
-              title="Abrir teclado numérico"
+              title="Marcar número Pokédex directo (#)"
             >
-              <Hash size={18} />
-              <span>DIAL NÚMERO</span>
+              <Hash size={16} className="dial-icon" />
+              <div className="dial-btn-content">
+                <span className="dial-main-text">DIAL</span>
+                <span className="dial-sub-text">DIRECTO</span>
+              </div>
             </button>
 
             <button
               className="holo-nav-btn next-btn"
               onClick={handleNext}
-              title="Pokémon siguiente"
+              title={`Pokémon siguiente: ${nextItem.formattedId} ${nextItem.name} (→ Flecha Derecha)`}
             >
-              <span>#{String(currentNumber < 1025 ? currentNumber + 1 : 1).padStart(4, '0')}</span>
-              <ChevronRight size={20} />
+              <div className="nav-item-info next-info">
+                <span className="nav-item-id">{nextItem.formattedId}</span>
+                <span className="nav-item-name">{nextItem.name}</span>
+              </div>
+              <ChevronRight size={18} className="nav-chevron" />
             </button>
           </footer>
         </div>

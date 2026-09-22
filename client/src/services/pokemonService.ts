@@ -1,7 +1,9 @@
-import type { PokemonData } from '../types';
+import type { PokemonData, VersionFlavorText, RegionalDexEntry, EditionPokemonEntry } from '../types';
+import { POKEDEX_EDITIONS, EDITION_MAP, VERSION_NAMES } from './editionsData';
 
 const BASE_URL = 'https://pokeapi.co/api/v2';
 const cache = new Map<number | string, PokemonData>();
+const editionListCache = new Map<string, EditionPokemonEntry[]>();
 
 export const TYPE_COLORS: Record<string, { bg: string; border: string; glow: string; text: string }> = {
   normal: { bg: '#919AA2', border: '#A8A878', glow: 'rgba(168, 168, 120, 0.4)', text: '#FFFFFF' },
@@ -75,10 +77,15 @@ interface SpeciesRaw {
   flavor_text_entries: Array<{
     flavor_text: string;
     language: { name: string };
+    version: { name: string };
   }>;
   genera: Array<{
     genus: string;
     language: { name: string };
+  }>;
+  pokedex_numbers: Array<{
+    entry_number: number;
+    pokedex: { name: string; url: string };
   }>;
 }
 
@@ -96,14 +103,51 @@ export async function fetchPokemon(idOrName: string | number): Promise<PokemonDa
 
   const raw: PokeApiRaw = await res.json();
 
-  // Try fetching species for description and genus in Spanish
   let flavorText = '';
   let genus = '';
+  const flavorTextsByVersion: VersionFlavorText[] = [];
+  const regionalEntries: RegionalDexEntry[] = [];
 
   try {
     const speciesRes = await fetch(`${BASE_URL}/pokemon-species/${raw.id}`);
     if (speciesRes.ok) {
       const speciesRaw: SpeciesRaw = await speciesRes.json();
+
+      // Regional pokedex numbers
+      if (speciesRaw.pokedex_numbers && Array.isArray(speciesRaw.pokedex_numbers)) {
+        speciesRaw.pokedex_numbers.forEach(pn => {
+          regionalEntries.push({
+            pokedexName: pn.pokedex.name,
+            entryNumber: pn.entry_number,
+          });
+        });
+      }
+
+      // Group flavor texts by game version prioritizing Spanish
+      const versionMap = new Map<string, { text: string; lang: string }>();
+
+      speciesRaw.flavor_text_entries.forEach(entry => {
+        const v = entry.version.name;
+        const lang = entry.language.name;
+        const cleanText = entry.flavor_text.replace(/[\n\f]/g, ' ');
+
+        if (lang === 'es') {
+          versionMap.set(v, { text: cleanText, lang: 'es' });
+        } else if (lang === 'en' && !versionMap.has(v)) {
+          versionMap.set(v, { text: cleanText, lang: 'en' });
+        }
+      });
+
+      versionMap.forEach((val, v) => {
+        flavorTextsByVersion.push({
+          version: v,
+          versionName: VERSION_NAMES[v] || (v.charAt(0).toUpperCase() + v.slice(1).replace(/-/g, ' ')),
+          flavorText: val.text,
+          language: val.lang,
+        });
+      });
+
+      // Default flavor text (preferably in Spanish)
       const esEntry = speciesRaw.flavor_text_entries.find(e => e.language.name === 'es');
       const enEntry = speciesRaw.flavor_text_entries.find(e => e.language.name === 'en');
       const text = esEntry?.flavor_text || enEntry?.flavor_text || '';
@@ -155,10 +199,71 @@ export async function fetchPokemon(idOrName: string | number): Promise<PokemonDa
     },
     flavorText,
     genus,
+    flavorTextsByVersion,
+    regionalEntries,
   };
 
   cache.set(pokemonData.id, pokemonData);
   cache.set(pokemonData.name.toLowerCase(), pokemonData);
 
   return pokemonData;
+}
+
+/**
+ * Fetches the list of Pokémon in a specific edition / regional Pokédex.
+ */
+export async function fetchEditionPokemonList(editionId: string): Promise<EditionPokemonEntry[]> {
+  if (editionListCache.has(editionId)) {
+    return editionListCache.get(editionId)!;
+  }
+
+  const edition = EDITION_MAP[editionId] || EDITION_MAP.national;
+
+  if (edition.id === 'national') {
+    const res = await fetch(`${BASE_URL}/pokemon?limit=1025`);
+    if (!res.ok) throw new Error('Error al cargar la Pokédex Nacional');
+    const data = await res.json();
+    const list: EditionPokemonEntry[] = data.results.map((p: { name: string; url: string }, index: number) => {
+      const nationalId = index + 1;
+      return {
+        regionalNumber: nationalId,
+        nationalNumber: nationalId,
+        name: p.name.charAt(0).toUpperCase() + p.name.slice(1),
+        formattedRegionalId: `#${String(nationalId).padStart(4, '0')}`,
+        formattedNationalId: `#${String(nationalId).padStart(4, '0')}`,
+        spriteUrl: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${nationalId}.png`,
+      };
+    });
+    editionListCache.set(editionId, list);
+    return list;
+  }
+
+  // Regional Pokédex from PokeAPI
+  const apiName = edition.pokedexApiName || edition.id;
+  const res = await fetch(`${BASE_URL}/pokedex/${apiName}`);
+  if (!res.ok) {
+    throw new Error(`Error al cargar la Pokédex de ${edition.name}`);
+  }
+
+  const data = await res.json();
+  const list: EditionPokemonEntry[] = data.pokemon_entries.map((entry: {
+    entry_number: number;
+    pokemon_species: { name: string; url: string };
+  }) => {
+    const urlParts = entry.pokemon_species.url.split('/').filter(Boolean);
+    const nationalId = parseInt(urlParts[urlParts.length - 1], 10);
+    const regNum = entry.entry_number;
+
+    return {
+      regionalNumber: regNum,
+      nationalNumber: nationalId,
+      name: entry.pokemon_species.name.charAt(0).toUpperCase() + entry.pokemon_species.name.slice(1),
+      formattedRegionalId: `#${String(regNum).padStart(4, '0')}`,
+      formattedNationalId: `#${String(nationalId).padStart(4, '0')}`,
+      spriteUrl: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${nationalId}.png`,
+    };
+  });
+
+  editionListCache.set(editionId, list);
+  return list;
 }

@@ -1,0 +1,183 @@
+import type { PokedexEdition } from '../types';
+
+export const POKEDEX_EDITIONS: PokedexEdition[] = [
+  {
+    id: 'national',
+    name: 'Pokédex Completa',
+    region: 'Todas las Regiones',
+    generation: 'Completa (Gen 1 - 9)',
+    games: 'Catálogo Universal de Todas las Ediciones',
+    accentColor: '#00F0FF',
+    pokedexApiName: 'national',
+    nationalRange: { start: 1, end: 1025 },
+    totalCount: 1025,
+    description: 'La base de datos universal definitiva. Contiene las 1.025 especies descubiertas en todas las ediciones y juegos de Pokémon.',
+    iconPokemonId: 25, // Pikachu
+  },
+  {
+    id: 'kanto',
+    name: 'Kanto',
+    region: 'Kanto',
+    generation: 'Gen 1',
+    games: 'Rojo • Azul • Amarillo • Rojo Fuego • Verde Hoja',
+    accentColor: '#EF4444',
+    pokedexApiName: 'kanto',
+    totalCount: 151,
+    description: 'La Pokédex original diseñada por el Profesor Oak en Pueblo Paleta. Contiene los 151 Pokémon pioneros.',
+    iconPokemonId: 6, // Charizard
+  },
+  {
+    id: 'johto',
+    name: 'Johto',
+    region: 'Johto',
+    generation: 'Gen 2',
+    games: 'Oro • Plata • Cristal • HeartGold • SoulSilver',
+    accentColor: '#F59E0B',
+    pokedexApiName: 'original-johto',
+    totalCount: 251,
+    description: 'Investigación del Profesor Elm. Expande el mundo conocido con la crianza Pokémon, tipos Acero y Siniestro.',
+    iconPokemonId: 155, // Cyndaquil
+  },
+  {
+    id: 'hoenn',
+    name: 'Hoenn',
+    region: 'Hoenn',
+    generation: 'Gen 3',
+    games: 'Rubí • Zafiro • Esmeralda • Rubí Omega • Zafiro Alfa',
+    accentColor: '#10B981',
+    pokedexApiName: 'hoenn',
+    totalCount: 202,
+    description: 'Desarrollada por el Profesor Abedul. Ecosistemas marítimos y terrestres con habilidades y naturalezas.',
+    iconPokemonId: 252, // Treecko
+  },
+  {
+    id: 'sinnoh',
+    name: 'Sinnoh',
+    region: 'Sinnoh',
+    generation: 'Gen 4',
+    games: 'Diamante • Perla • Platino • DB / PR',
+    accentColor: '#3B82F6',
+    pokedexApiName: 'extended-sinnoh',
+    totalCount: 210,
+    description: 'Creada por el Profesor Serbal. Profundiza en los mitos de la creación, espacio y tiempo del cosmos Pokémon.',
+    iconPokemonId: 390, // Chimchar
+  },
+  {
+    id: 'unova',
+    name: 'Teselia',
+    region: 'Teselia / Unova',
+    generation: 'Gen 5',
+    games: 'Blanco • Negro • Blanco 2 • Negro 2',
+    accentColor: '#6B7280',
+    pokedexApiName: 'updated-unova',
+    totalCount: 301,
+    description: 'Entregada por la Profesora Encina. Una metrópoli urbana con la mayor cantidad de especies autóctonas.',
+    iconPokemonId: 495, // Snivy
+  },
+  {
+    id: 'kalos',
+    name: 'Kalos',
+    region: 'Kalos',
+    generation: 'Gen 6',
+    games: 'Pokémon X • Pokémon Y',
+    accentColor: '#06B6D4',
+    pokedexApiName: 'kalos-central',
+    totalCount: 153,
+    description: 'La vanguardista Holo-Dex del Profesor Ciprés. Descubrimiento del tipo Hada y el fenómeno de la Megaevolución.',
+    iconPokemonId: 656, // Froakie
+  },
+  {
+    id: 'alola',
+    name: 'Alola',
+    region: 'Alola',
+    generation: 'Gen 7',
+    games: 'Sol • Luna • Ultrasol • Ultraluna',
+    accentColor: '#F97316',
+    pokedexApiName: 'updated-alola',
+    totalCount: 403,
+    description: 'La Rotom-Dex del archipiélago de Alola. Formas regionales adaptadas, Movimientos Z y el recorrido insular.',
+    iconPokemonId: 722, // Rowlet
+  },
+  {
+    id: 'galar',
+    name: 'Galar',
+    region: 'Galar',
+    generation: 'Gen 8',
+    games: 'Pokémon Espada • Pokémon Escudo',
+    accentColor: '#8B5CF6',
+    pokedexApiName: 'galar',
+    totalCount: 400,
+    description: 'Pokédex de la Profesora Magnolia. Registra el fenómeno Dinamax y las incursiones en el Área Silvestre.',
+    iconPokemonId: 810, // Grookey
+  },
+  {
+    id: 'hisui',
+    name: 'Hisui',
+    region: 'Hisui (Antigua Sinnoh)',
+    generation: 'Gen 8',
+    games: 'Leyendas Pokémon: Arceus',
+    accentColor: '#14B8A6',
+    pokedexApiName: 'hisui',
+    totalCount: 242,
+    description: 'La primera Pokédex de la historia, manuscrita por el Profesor Lavender para el Equipo Galaxia.',
+    iconPokemonId: 503, // Samurott Hisui
+  },
+  {
+    id: 'paldea',
+    name: 'Paldea',
+    region: 'Paldea',
+    generation: 'Gen 9',
+    games: 'Pokémon Escarlata • Pokémon Púrpura',
+    accentColor: '#EC4899',
+    pokedexApiName: 'paldea',
+    totalCount: 400,
+    description: 'La moderna SmartRotom de la Academia Naranja/Uva. Investiga el fenómeno de la Teracristalización y el Foso.',
+    iconPokemonId: 906, // Sprigatito
+  },
+];
+
+export const EDITION_MAP: Record<string, PokedexEdition> = POKEDEX_EDITIONS.reduce((acc, ed) => {
+  acc[ed.id] = ed;
+  return acc;
+}, {} as Record<string, PokedexEdition>);
+
+// Translations for game edition versions to human friendly labels
+export const VERSION_NAMES: Record<string, string> = {
+  red: 'Rojo',
+  blue: 'Azul',
+  yellow: 'Amarillo',
+  gold: 'Oro',
+  silver: 'Plata',
+  crystal: 'Cristal',
+  ruby: 'Rubí',
+  sapphire: 'Zafiro',
+  emerald: 'Esmeralda',
+  firered: 'Rojo Fuego',
+  leafgreen: 'Verde Hoja',
+  diamond: 'Diamante',
+  pearl: 'Perla',
+  platinum: 'Platino',
+  heartgold: 'HeartGold',
+  soulsilver: 'SoulSilver',
+  black: 'Negro',
+  white: 'Blanco',
+  'black-2': 'Negro 2',
+  'white-2': 'Blanco 2',
+  x: 'X',
+  y: 'Y',
+  'omega-ruby': 'Rubí Omega',
+  'alpha-sapphire': 'Zafiro Alfa',
+  sun: 'Sol',
+  moon: 'Luna',
+  'ultra-sun': 'Ultrasol',
+  'ultra-moon': 'Ultraluna',
+  'lets-go-pikachu': "Let's Go Pikachu",
+  'lets-go-eevee': "Let's Go Eevee",
+  sword: 'Espada',
+  shield: 'Escudo',
+  'brilliant-diamond': 'Diamante Brillante',
+  'shining-pearl': 'Perla Reluciente',
+  'legends-arceus': 'Leyendas: Arceus',
+  scarlet: 'Escarlata',
+  violet: 'Púrpura',
+};

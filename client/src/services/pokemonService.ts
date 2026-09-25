@@ -89,6 +89,71 @@ interface SpeciesRaw {
   }>;
 }
 
+const TRANSLATION_CACHE_KEY = 'poke_desc_cache_es_v1';
+const translationMemCache = new Map<string, string>();
+
+try {
+  const stored = typeof localStorage !== 'undefined' ? localStorage.getItem(TRANSLATION_CACHE_KEY) : null;
+  if (stored) {
+    const parsed = JSON.parse(stored);
+    Object.entries(parsed).forEach(([k, v]) => translationMemCache.set(k, v as string));
+  }
+} catch {
+  // localStorage might not be available or empty
+}
+
+function saveTranslationCache() {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const obj: Record<string, string> = {};
+      translationMemCache.forEach((v, k) => {
+        obj[k] = v;
+      });
+      localStorage.setItem(TRANSLATION_CACHE_KEY, JSON.stringify(obj));
+    }
+  } catch {
+    // ignore
+  }
+}
+
+function decodeHtmlEntities(str: string): string {
+  return str
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&#([0-9]{1,5});/gi, (_, numStr) => String.fromCharCode(parseInt(numStr, 10)));
+}
+
+async function translateToSpanish(text: string): Promise<string> {
+  const clean = text.replace(/[\n\f]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!clean) return '';
+  if (translationMemCache.has(clean)) {
+    return translationMemCache.get(clean)!;
+  }
+
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(clean)}&langpair=en|es`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.responseData?.translatedText) {
+        const translated = decodeHtmlEntities(data.responseData.translatedText).trim();
+        if (translated && !translated.startsWith('MYMEMORY WARNING')) {
+          translationMemCache.set(clean, translated);
+          saveTranslationCache();
+          return translated;
+        }
+      }
+    }
+  } catch {
+    // Network or rate limit fallback
+  }
+
+  return clean;
+}
+
 export async function fetchPokemon(idOrName: string | number): Promise<PokemonData> {
   const query = typeof idOrName === 'string' ? idOrName.trim().toLowerCase() : idOrName;
 
@@ -123,39 +188,64 @@ export async function fetchPokemon(idOrName: string | number): Promise<PokemonDa
         });
       }
 
-      // Group flavor texts by game version prioritizing Spanish
+      // Group flavor texts strictly in Spanish
       const versionMap = new Map<string, { text: string; lang: string }>();
 
+      // 1. Gather all official Spanish entries from PokeAPI ('es' prioritized, then 'es-419')
       speciesRaw.flavor_text_entries.forEach(entry => {
         const v = entry.version.name;
         const lang = entry.language.name;
-        const cleanText = entry.flavor_text.replace(/[\n\f]/g, ' ');
+        const cleanText = entry.flavor_text.replace(/[\n\f]/g, ' ').replace(/\s+/g, ' ').trim();
 
         if (lang === 'es') {
           versionMap.set(v, { text: cleanText, lang: 'es' });
-        } else if (lang === 'en' && !versionMap.has(v)) {
-          versionMap.set(v, { text: cleanText, lang: 'en' });
+        } else if (lang === 'es-419' && !versionMap.has(v)) {
+          versionMap.set(v, { text: cleanText, lang: 'es' });
         }
       });
+
+      // 2. If species has NO native Spanish entries in PokeAPI (e.g. Gen 9 Paldea / Hisui), translate English entries to Spanish
+      if (versionMap.size === 0) {
+        const enEntries = speciesRaw.flavor_text_entries.filter(e => e.language.name === 'en');
+        const takenVersions = new Set<string>();
+        for (const entry of enEntries) {
+          const v = entry.version.name;
+          if (!takenVersions.has(v)) {
+            takenVersions.add(v);
+            const cleanText = entry.flavor_text.replace(/[\n\f]/g, ' ').replace(/\s+/g, ' ').trim();
+            const translated = await translateToSpanish(cleanText);
+            versionMap.set(v, { text: translated, lang: 'es' });
+          }
+        }
+      }
 
       versionMap.forEach((val, v) => {
         flavorTextsByVersion.push({
           version: v,
           versionName: VERSION_NAMES[v] || (v.charAt(0).toUpperCase() + v.slice(1).replace(/-/g, ' ')),
           flavorText: val.text,
-          language: val.lang,
+          language: 'es',
         });
       });
 
-      // Default flavor text (preferably in Spanish)
-      const esEntry = speciesRaw.flavor_text_entries.find(e => e.language.name === 'es');
-      const enEntry = speciesRaw.flavor_text_entries.find(e => e.language.name === 'en');
-      const text = esEntry?.flavor_text || enEntry?.flavor_text || '';
-      flavorText = text.replace(/[\n\f]/g, ' ');
+      // Default flavor text: first Spanish entry available
+      if (flavorTextsByVersion.length > 0) {
+        flavorText = flavorTextsByVersion[0].flavorText;
+      } else {
+        const fallbackRaw = speciesRaw.flavor_text_entries[0]?.flavor_text || '';
+        flavorText = fallbackRaw.replace(/[\n\f]/g, ' ').replace(/\s+/g, ' ').trim();
+      }
 
-      const esGenus = speciesRaw.genera.find(g => g.language.name === 'es');
+      // Genus in Spanish
+      const esGenus = speciesRaw.genera.find(g => g.language.name === 'es' || g.language.name.startsWith('es'));
       const enGenus = speciesRaw.genera.find(g => g.language.name === 'en');
-      genus = esGenus?.genus || enGenus?.genus || '';
+      if (esGenus?.genus) {
+        genus = esGenus.genus;
+      } else if (enGenus?.genus) {
+        genus = await translateToSpanish(enGenus.genus);
+      } else {
+        genus = '';
+      }
     }
   } catch {
     // Graceful fallback if species fail

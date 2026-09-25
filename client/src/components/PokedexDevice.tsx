@@ -21,6 +21,7 @@ import type { PokemonData, CryVersion, PokedexEdition, EditionPokemonEntry } fro
 import { audioService } from '../services/audioService';
 import { HoloVisualizer } from './HoloVisualizer';
 import { TYPE_COLORS, TYPE_TRANSLATIONS } from '../services/pokemonService';
+import { EDITION_PREFERRED_VERSIONS } from '../services/editionsData';
 
 interface PokedexDeviceProps {
   pokemon: PokemonData | null;
@@ -64,18 +65,26 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
   const [searchInput, setSearchInput] = useState<string>('');
   const [selectedVersion, setSelectedVersion] = useState<string>('');
 
-  // When pokemon changes, reset selected version to the first available or matching edition
+  // When pokemon changes, reset selected version to the first available or matching edition in Spanish
   useEffect(() => {
     if (pokemon && pokemon.flavorTextsByVersion.length > 0) {
-      // Find one matching the current edition or default to first
-      const match = pokemon.flavorTextsByVersion.find(
-        (v) => v.version.includes(currentEdition.id) || currentEdition.games.toLowerCase().includes(v.versionName.toLowerCase())
-      );
+      // 1. Look for preferred version for the active edition
+      const preferredList = EDITION_PREFERRED_VERSIONS[currentEdition.id] || [];
+      let match = pokemon.flavorTextsByVersion.find((v) => preferredList.includes(v.version));
+
+      // 2. If not matched, try matching edition id or edition games string
+      if (!match) {
+        match = pokemon.flavorTextsByVersion.find(
+          (v) => v.version.includes(currentEdition.id) || currentEdition.games.toLowerCase().includes(v.versionName.toLowerCase())
+        );
+      }
+
+      // 3. Fallback to first available Spanish version
       setSelectedVersion(match ? match.version : pokemon.flavorTextsByVersion[0].version);
     } else {
       setSelectedVersion('');
     }
-  }, [pokemon?.id, currentEdition.id]);
+  }, [pokemon?.id, pokemon?.flavorTextsByVersion, currentEdition.id, currentEdition.games]);
 
   // Handle auto-playing cry when Pokémon changes
   useEffect(() => {

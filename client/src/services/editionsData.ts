@@ -19,7 +19,7 @@ export const POKEDEX_EDITIONS: PokedexEdition[] = [
     name: 'Kanto',
     region: 'Kanto',
     generation: 'Gen 1',
-    games: 'Rojo • Azul • Amarillo • Rojo Fuego • Verde Hoja',
+    games: 'Rojo • Azul • Amarillo • Let\'s Go • Rojo Fuego • Verde Hoja',
     accentColor: '#EF4444',
     pokedexApiName: 'kanto',
     totalCount: 151,
@@ -181,3 +181,19 @@ export const VERSION_NAMES: Record<string, string> = {
   scarlet: 'Escarlata',
   violet: 'Púrpura',
 };
+
+// Preferred version order per edition when selecting active flavor text
+export const EDITION_PREFERRED_VERSIONS: Record<string, string[]> = {
+  kanto: ['lets-go-pikachu', 'lets-go-eevee', 'x', 'y', 'sword', 'shield'],
+  johto: ['x', 'y', 'omega-ruby', 'alpha-sapphire', 'sword', 'shield'],
+  hoenn: ['omega-ruby', 'alpha-sapphire', 'x', 'y'],
+  sinnoh: ['brilliant-diamond', 'shining-pearl', 'legends-arceus', 'x', 'y'],
+  unova: ['x', 'y', 'omega-ruby', 'alpha-sapphire', 'sword', 'shield'],
+  kalos: ['x', 'y'],
+  alola: ['ultra-sun', 'ultra-moon', 'sun', 'moon'],
+  galar: ['sword', 'shield'],
+  hisui: ['legends-arceus'],
+  paldea: ['scarlet', 'violet'],
+  national: ['x', 'sword', 'scarlet', 'omega-ruby', 'sun', 'lets-go-pikachu'],
+};
+
